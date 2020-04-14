@@ -22,6 +22,7 @@ resource "aws_s3_bucket" "default" {
   }
 
   lifecycle_rule {
+    id      = "object-expiration"
     enabled = "true"
     expiration {
       days = var.s3_object_expiration_days
