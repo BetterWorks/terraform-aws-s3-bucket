@@ -43,12 +43,6 @@ variable "policy" {
   description = "A valid bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy."
 }
 
-variable "region" {
-  type        = string
-  default     = ""
-  description = "If specified, the AWS region this bucket should reside in. Otherwise, the region used by the callee."
-}
-
 variable "force_destroy" {
   type        = string
   default     = "false"

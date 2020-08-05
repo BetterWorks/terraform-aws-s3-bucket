@@ -8,6 +8,11 @@ output "bucket_id" {
   description = "Bucket Name (aka ID)"
 }
 
+output "bucket_region" {
+  value       = var.enabled == "true" ? join("", aws_s3_bucket.default.*.region) : ""
+  description = "Bucket Region"
+}
+
 output "bucket_arn" {
   value       = var.enabled == "true" ? join("", aws_s3_bucket.default.*.arn) : ""
   description = "Bucket ARN"
