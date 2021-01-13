@@ -9,12 +9,36 @@ module "default_label" {
   tags       = var.tags
 }
 
+data "aws_iam_policy_document" "s3_bucket_policy" {
+  source_json = var.policy
+
+  statement {
+    sid = "ReadOnlyAccounts"
+
+    actions = [
+            "s3:GetBucketLocation",
+            "s3:GetBucketVersioning",
+            "s3:GetObject",
+            "s3:GetObjectVersion",
+            "s3:ListBucket"
+            ]
+
+    resources = [
+      "arn:aws:s3:::${module.default_label.id}",
+      "arn:aws:s3:::${module.default_label.id}/*",
+    ]
+    principals {      
+      identifiers = formatlist("arn:aws:iam::%s:root", var.read_only_access_accounts)
+      type        = "AWS"
+    }
+  }
+}
 resource "aws_s3_bucket" "default" {
   count         = var.enabled == "true" ? 1 : 0
   bucket        = module.default_label.id
   acl           = var.acl
   force_destroy = var.force_destroy
-  policy        = var.policy
+  policy        = data.aws_iam_policy_document.s3_bucket_policy.json
 
   versioning {
     enabled = var.versioning_enabled
@@ -45,6 +69,7 @@ module "s3_user" {
   s3_actions   = var.allowed_bucket_actions
   s3_resources = ["${join("", aws_s3_bucket.default.*.arn)}/*", join("", aws_s3_bucket.default.*.arn)]
 }
+
 
 data "aws_iam_policy_document" "bucket_policy" {
   count = var.enabled == "true" && var.allow_encrypted_uploads_only == "true" ? 1 : 0
