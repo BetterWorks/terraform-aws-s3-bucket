@@ -93,5 +93,5 @@ variable "allow_encrypted_uploads_only" {
 variable "read_only_access_accounts" {
   type        = list(string)
   default     = []
-  description = "List of accounts with read-only accesss to the nucket"
+  description = "List of accounts with read-only accesss to the bucket"
 }
