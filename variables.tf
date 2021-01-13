@@ -84,10 +84,14 @@ variable "allowed_bucket_actions" {
   default     = ["s3:PutObject", "s3:PutObjectAcl", "s3:GetObject", "s3:DeleteObject", "s3:ListBucket", "s3:ListBucketMultipartUploads", "s3:GetBucketLocation", "s3:AbortMultipartUpload"]
   description = "List of actions the user is permitted to perform on the S3 bucket"
 }
-
 variable "allow_encrypted_uploads_only" {
   type        = string
   default     = "false"
   description = "Set to `true` to prevent uploads of unencrypted objects to S3 bucket"
 }
 
+variable "read_only_access_accounts" {
+  type        = list(string)
+  default     = []
+  description = "List of accounts with read-only accesss to the bucket"
+}
