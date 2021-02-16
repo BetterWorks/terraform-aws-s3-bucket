@@ -37,6 +37,12 @@ variable "acl" {
   description = "The canned ACL to apply. We recommend `private` to avoid exposing sensitive information"
 }
 
+variable "s3_object_expiration_days" {
+  type        = number
+  default     = 30
+  description = "Number of days after which to expire objects"
+}
+
 variable "policy" {
   type        = string
   default     = ""
