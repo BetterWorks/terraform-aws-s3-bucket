@@ -45,7 +45,7 @@ variable "s3_object_expiration_enabled" {
 
 variable "s3_object_expiration_days" {
   type        = number
-  default     = 30
+  default     = 365
   description = "Number of days after which to expire objects"
 }
 
