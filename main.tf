@@ -16,18 +16,18 @@ data "aws_iam_policy_document" "s3_bucket_readonly_policy" {
     sid = "ReadOnlyAccounts"
 
     actions = [
-            "s3:GetBucketLocation",
-            "s3:GetBucketVersioning",
-            "s3:GetObject",
-            "s3:GetObjectVersion",
-            "s3:ListBucket"
-            ]
+      "s3:GetBucketLocation",
+      "s3:GetBucketVersioning",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:ListBucket"
+    ]
 
     resources = [
       "arn:aws:s3:::${module.default_label.id}",
       "arn:aws:s3:::${module.default_label.id}/*",
     ]
-    principals {      
+    principals {
       identifiers = formatlist("arn:aws:iam::%s:root", var.read_only_access_accounts)
       type        = "AWS"
     }
