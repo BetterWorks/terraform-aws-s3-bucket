@@ -9,7 +9,7 @@ module "default_label" {
   tags       = var.tags
 }
 
-data "aws_iam_policy_document" "s3_bucket_policy" {
+data "aws_iam_policy_document" "s3_bucket_readonly_policy" {
   source_json = var.policy
 
   statement {
@@ -33,12 +33,13 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
     }
   }
 }
+
 resource "aws_s3_bucket" "default" {
   count         = var.enabled == "true" ? 1 : 0
   bucket        = module.default_label.id
   acl           = var.acl
   force_destroy = var.force_destroy
-  policy        = data.aws_iam_policy_document.s3_bucket_policy.json
+  policy        = var.readonly_policy_enabled == "true" ? data.aws_iam_policy_document.s3_bucket_readonly_policy.json : var.policy
 
   versioning {
     enabled = var.versioning_enabled
@@ -46,7 +47,7 @@ resource "aws_s3_bucket" "default" {
 
   lifecycle_rule {
     id      = "object-expiration"
-    enabled = "true"
+    enabled = var.s3_object_expiration_enabled
     expiration {
       days = var.s3_object_expiration_days
     }
