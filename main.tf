@@ -9,39 +9,48 @@ module "default_label" {
   tags       = var.tags
 }
 
-data "aws_iam_policy_document" "s3_bucket_policy" {
+data "aws_iam_policy_document" "s3_bucket_readonly_policy" {
   source_json = var.policy
 
   statement {
     sid = "ReadOnlyAccounts"
 
     actions = [
-            "s3:GetBucketLocation",
-            "s3:GetBucketVersioning",
-            "s3:GetObject",
-            "s3:GetObjectVersion",
-            "s3:ListBucket"
-            ]
+      "s3:GetBucketLocation",
+      "s3:GetBucketVersioning",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:ListBucket"
+    ]
 
     resources = [
       "arn:aws:s3:::${module.default_label.id}",
       "arn:aws:s3:::${module.default_label.id}/*",
     ]
-    principals {      
+    principals {
       identifiers = formatlist("arn:aws:iam::%s:root", var.read_only_access_accounts)
       type        = "AWS"
     }
   }
 }
+
 resource "aws_s3_bucket" "default" {
   count         = var.enabled == "true" ? 1 : 0
   bucket        = module.default_label.id
   acl           = var.acl
   force_destroy = var.force_destroy
-  policy        = data.aws_iam_policy_document.s3_bucket_policy.json
+  policy        = var.readonly_policy_enabled == "true" ? data.aws_iam_policy_document.s3_bucket_readonly_policy.json : var.policy
 
   versioning {
     enabled = var.versioning_enabled
+  }
+
+  lifecycle_rule {
+    id      = "object-expiration"
+    enabled = var.s3_object_expiration_enabled
+    expiration {
+      days = var.s3_object_expiration_days
+    }
   }
 
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html

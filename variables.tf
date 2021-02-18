@@ -37,6 +37,24 @@ variable "acl" {
   description = "The canned ACL to apply. We recommend `private` to avoid exposing sensitive information"
 }
 
+variable "s3_object_expiration_enabled" {
+  type        = string
+  default     = "false"
+  description = "Whether or not to enable S3 objection lifecycle rule"
+}
+
+variable "s3_object_expiration_days" {
+  type        = number
+  default     = 365
+  description = "Number of days after which to expire objects"
+}
+
+variable "readonly_policy_enabled" {
+  type        = string
+  default     = "false"
+  description = "Whether or not to enable ReadOnlyAccounts policy in main.tf"
+}
+
 variable "policy" {
   type        = string
   default     = ""
