@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "s3_bucket_readonly_policy" {
       "arn:aws:s3:::${module.default_label.id}/*",
     ]
     principals {
-      identifiers = formatlist("arn:aws:iam::%s:root", var.read_only_access_accounts)
+      identifiers = length(var.read_only_access_accounts) == 0 ? ["*"] :formatlist("arn:aws:iam::%s:root", var.read_only_access_accounts)
       type        = "AWS"
     }
   }
