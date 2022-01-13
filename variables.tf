@@ -113,8 +113,3 @@ variable "read_only_access_accounts" {
   default     = []
   description = "List of accounts with read-only accesss to the bucket"
 }
-variable "bucket_ignore_changes" {
-  type        = list(string)
-  default     = []
-  description = "LIgnore changes for s3 buckets"
-}

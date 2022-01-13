@@ -53,7 +53,12 @@ resource "aws_s3_bucket" "default" {
     }
   }
   lifecycle {
-    ignore_changes = var.bucket_ignore_changes
+    ignore_changes = [
+      versioning,
+      replication_configuration,
+      lifecycle_rule,
+      policy
+    ]    
   }
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html
   # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html#enable-default-server-side-encryption
