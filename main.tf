@@ -51,12 +51,13 @@ resource "aws_s3_bucket" "default" {
     expiration {
       days = var.s3_object_expiration_days
     }
-     ignore_changes = [
+  }
+  lifecycle {
+    ignore_changes = [
       versioning,
       replication_configuration
-    ]
+    ]    
   }
-
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html
   # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html#enable-default-server-side-encryption
   server_side_encryption_configuration {
