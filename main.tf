@@ -1,5 +1,5 @@
 module "default_label" {
-  source     = "git::https://github.com/betterworks/terraform-null-label.git?ref=tags/0.12.0"
+  source     = "git::https://github.com/betterworks/terraform-null-label.git?ref=tags/0.13.0"
   enabled    = var.enabled
   namespace  = var.namespace
   stage      = var.stage
@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "s3_bucket_readonly_policy" {
       "arn:aws:s3:::${module.default_label.id}/*",
     ]
     principals {
-      identifiers = length(var.read_only_access_accounts) == 0 ? ["*"] :formatlist("arn:aws:iam::%s:root", var.read_only_access_accounts)
+      identifiers = length(var.read_only_access_accounts) == 0 ? ["*"] : formatlist("arn:aws:iam::%s:root", var.read_only_access_accounts)
       type        = "AWS"
     }
   }
@@ -58,7 +58,7 @@ resource "aws_s3_bucket" "default" {
       replication_configuration,
       lifecycle_rule,
       policy
-    ]    
+    ]
   }
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html
   # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html#enable-default-server-side-encryption
@@ -75,7 +75,7 @@ resource "aws_s3_bucket" "default" {
 }
 
 module "s3_user" {
-  source       = "git::https://github.com/betterworks/terraform-aws-iam-s3-user.git?ref=tags/0.4.0"
+  source       = "git::https://github.com/betterworks/terraform-aws-iam-s3-user.git?ref=tags/1.0.0-terraform-1"
   namespace    = var.namespace
   stage        = var.stage
   name         = var.name
