@@ -52,16 +52,15 @@ resource "aws_s3_bucket" "default" {
       days = var.s3_object_expiration_days
     }
   }
+  
   lifecycle {
     ignore_changes = [
       versioning,
       replication_configuration,
-      lifecycle_rule,
-      policy
+      lifecycle_rule
     ]
   }
-  # https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html
-  # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html#enable-default-server-side-encryption
+
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
@@ -73,6 +72,7 @@ resource "aws_s3_bucket" "default" {
 
   tags = module.default_label.tags
 }
+
 
 module "s3_user" {
   source       = "git::https://github.com/betterworks/terraform-aws-iam-s3-user.git?ref=tags/0.5.1"
