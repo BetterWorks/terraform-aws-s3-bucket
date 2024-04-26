@@ -34,6 +34,17 @@ data "aws_iam_policy_document" "s3_bucket_readonly_policy" {
   }
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+  count  = var.enabled == "true" ? 1 : 0
+  bucket = aws_s3_bucket.default.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = var.sse_algorithm
+      kms_master_key_id = var.kms_master_key_id
+    }
+  }
+}
 resource "aws_s3_bucket" "default" {
   count         = var.enabled == "true" ? 1 : 0
   bucket        = module.default_label.id
@@ -52,7 +63,7 @@ resource "aws_s3_bucket" "default" {
       days = var.s3_object_expiration_days
     }
   }
-  
+
   lifecycle {
     ignore_changes = [
       versioning,
