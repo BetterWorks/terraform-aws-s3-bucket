@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "s3_bucket_readonly_policy" {
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   count  = var.enabled == "true" ? 1 : 0
   bucket = aws_s3_bucket.default[0].id
 
