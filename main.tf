@@ -10,7 +10,8 @@ module "default_label" {
 }
 
 data "aws_iam_policy_document" "s3_bucket_readonly_policy" {
-  source_json = var.policy
+  # NB: provider v5 rejects a non-empty source_json.
+  source_policy_documents = var.policy == "" ? [] : [var.policy]
 
   statement {
     sid = "ReadOnlyAccounts"
@@ -56,11 +57,15 @@ resource "aws_s3_bucket" "default" {
     enabled = var.versioning_enabled
   }
 
-  lifecycle_rule {
-    id      = "object-expiration"
-    enabled = var.s3_object_expiration_enabled
-    expiration {
-      days = var.s3_object_expiration_days
+  # NB: skipped when lifecycle_rules is set; inline and standalone lifecycle config overwrite each other.
+  dynamic "lifecycle_rule" {
+    for_each = length(var.lifecycle_rules) == 0 ? [1] : []
+    content {
+      id      = "object-expiration"
+      enabled = var.s3_object_expiration_enabled
+      expiration {
+        days = var.s3_object_expiration_days
+      }
     }
   }
 
@@ -145,3 +150,59 @@ resource "aws_s3_bucket_policy" "default" {
   policy = join("", data.aws_iam_policy_document.bucket_policy.*.json)
 }
 
+
+resource "aws_s3_bucket_lifecycle_configuration" "default" {
+  count  = var.enabled == "true" && length(var.lifecycle_rules) > 0 ? 1 : 0
+  bucket = aws_s3_bucket.default[0].id
+
+  dynamic "rule" {
+    for_each = var.lifecycle_rules
+    content {
+      id     = rule.value.id
+      status = lookup(rule.value, "enabled", true) ? "Enabled" : "Disabled"
+
+      filter {
+        prefix = lookup(rule.value, "prefix", null)
+      }
+
+      dynamic "transition" {
+        for_each = lookup(rule.value, "transitions", [])
+        content {
+          days          = transition.value.days
+          storage_class = transition.value.storage_class
+        }
+      }
+
+      dynamic "expiration" {
+        for_each = lookup(rule.value, "expiration_days", null) != null || lookup(rule.value, "expired_object_delete_marker", null) != null ? [1] : []
+        content {
+          days                         = lookup(rule.value, "expiration_days", null)
+          expired_object_delete_marker = lookup(rule.value, "expired_object_delete_marker", null)
+        }
+      }
+
+      dynamic "noncurrent_version_expiration" {
+        for_each = lookup(rule.value, "noncurrent_version_expiration_days", null) != null ? [1] : []
+        content {
+          noncurrent_days = rule.value.noncurrent_version_expiration_days
+        }
+      }
+
+      dynamic "abort_incomplete_multipart_upload" {
+        for_each = lookup(rule.value, "abort_incomplete_multipart_upload_days", null) != null ? [1] : []
+        content {
+          days_after_initiation = rule.value.abort_incomplete_multipart_upload_days
+        }
+      }
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "default" {
+  count                   = var.enabled == "true" && var.block_public_access_enabled ? 1 : 0
+  bucket                  = aws_s3_bucket.default[0].id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
