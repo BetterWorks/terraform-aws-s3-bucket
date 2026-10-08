@@ -113,3 +113,19 @@ variable "read_only_access_accounts" {
   default     = []
   description = "List of accounts with read-only accesss to the bucket"
 }
+variable "lifecycle_rules" {
+  type        = any
+  default     = []
+  description = <<-EOT
+    Lifecycle rules managed as a standalone `aws_s3_bucket_lifecycle_configuration`; replaces the inline
+    `s3_object_expiration_*` rule when set. Each rule: `id` (required), `enabled` (default true), `prefix`,
+    `transitions` (list of `{ days, storage_class }`), `expiration_days`, `expired_object_delete_marker`,
+    `noncurrent_version_expiration_days`, `abort_incomplete_multipart_upload_days`.
+  EOT
+}
+
+variable "block_public_access_enabled" {
+  type        = bool
+  default     = false
+  description = "Set to `true` to block all public ACLs and policies on the bucket"
+}
